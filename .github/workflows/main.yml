@@ -1,20 +1,31 @@
 name: Jekyll site CI
-
+env:
+  PUBLISH_DIR: bin/Release/netstandard2.1/publish/wwwroot
+  
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: [ master ]  
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Build the site in the jekyll/builder container
-      run: |
-        docker run \
-        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "chmod 777 /srv/jekyll && jekyll build --future"
+      
+    - name: Publish app
+      run:  dotnet publish -c Release 
+      
+    - name: Rewrite base href
+      uses: mohanmarkandan/ghactions-rewrite-base-href@v1        
+        html_path: ${{env.PUBLISH_DIR}}/index.html
+        base_href: /BlazorApp1/
+        
+    - name: Github Pages
+      if: success()
+      uses: crazy-max/ghaction-github-pages@v1.5.1
+      with:
+        target-branch: gh-pages
+        build_dir: ${{ env.PUBLISH_DIR}}
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        
