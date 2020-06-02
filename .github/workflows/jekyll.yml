@@ -4,29 +4,26 @@ env:
   
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: [ master ]  
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Build the site in the jekyll/builder container
+      
+    - name: Publish app
       run:  dotnet publish -c Release 
       
     - name: Rewrite base href
-      uses: mohanmarkandan/master-rewrite-base-href@v1
+      uses: mohanmarkandan/ghactions-rewrite-base-href@v1
       with:         
         html_path: ${{env.PUBLISH_DIR}}/index.html
         base_href: /BlazorApp1/
         
     - name: Github Pages
       if: success()
-      uses: crazy-max/gh-action-github-pages@v1.5.1
+      uses: crazy-max/ghaction-github-pages@v1.5.1
       with:
         target-branch: gh-pages
         build_dir: ${{ env.PUBLISH_DIR}}
