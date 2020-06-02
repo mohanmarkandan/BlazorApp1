@@ -1,5 +1,7 @@
 name: Jekyll site CI
-
+env:
+  PUBLISH_DIR: bin/Release/netstandard2.1/publish/wwwroot
+  
 on:
   push:
     branches: [ master ]
